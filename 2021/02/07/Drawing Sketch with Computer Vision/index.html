@@ -95,7 +95,9 @@
   </style>
 </noscript>
 
-</head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
   <div class="headband"></div>
@@ -262,7 +264,6 @@
     <div class="post-body" itemprop="articleBody">
         <h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>Recently, I was looking for some funny projects of computer vision. This <a target="_blank" rel="noopener" href="https://data-flair.training/blogs/computer-vision-project-ideas/">link</a> gives me an idea of drawing sketch with cv algorithm. In the beginning, I thought it’s an edge detection project, then I tried to find the gradient magnitude of the image, then reverse the image. The result turns out to be really good, but doesn’t reach my expectation. </p>
 <a id="more"></a> 
-
 <center>
 <img src="https://github.com/Victor-lol/images_for_markdown/blob/main/DrawSketch/flower_G.png?raw=true" style="zoom:50%"/>    
 </center>
@@ -273,14 +274,24 @@
 <img src="https://github.com/Victor-lol/images_for_markdown/blob/main/DrawSketch/workflow.png?raw=true" style="zoom:50%"/>    
 </center>
 
-<h4 id="Draw-Line"><a href="#Draw-Line" class="headerlink" title="Draw Line"></a>Draw Line</h4><p>Author of the article separates the workflow into two parts. One is to draw the outline of the image and the other is to draw the texture. Finally, combining two parts with convolution. When drawing the outline, the algorithm firstly does “classification” by computing the gradient magnitude of the gary scale image (denoted as G), in order to find out the edges. But what makes this algorithm is that it then tries to generate short lines for sketch. It estimates the direction of line direction with help of direction of gradient. The general way to do this is to chooose eight reference direction at 45 degree apart, which are denoted as ${\mathbb{L}_i}$, i $\in {1…8}$. Then convolving gradient magnitude and line segmentation<br>$$\mathbb{L}_i * G$$</p>
-<p>In detail, as for how to create line segmentation matrix, we need to create a singal matrix at 8 directions, and convolve G and the singal matrix. Next, we perform non-maximum supression with formula<br>$$<br>C_i(p)=<br>\begin{cases}<br>G(p), &amp; \text{if ${\argmax_i}$ $G_i(p)$ = i} \<br>0, &amp; \text{otherwise} \<br>\end{cases}<br>$$</p>
-<p>Now, what we will do is to shape the line, denoted as S.<br>$$ S = \sum_{i=1}^8 (\mathbb{L}_i \bigotimes C_i)$$<br>This convolution formula gives us an outline image which has many close-ups. In summary, to draw the line of the image, the algorithm is to find the edges and then extends the edges at the gradient direction. Of course, we need to ensure the gradient by using non-maximum supression.</p>
-<h4 id="Draw-Tone"><a href="#Draw-Tone" class="headerlink" title="Draw Tone"></a>Draw Tone</h4><p>The task for another part is drawing texture. The idea for this part is trying to find a proper texture to convolve it with line image. Actually, in practice if we directly convolve line image with a texture image given online, we could draw the texture on line image. However, it can’t reflect shadow or shading and dark object properly. So, it’s necessary to find out a suitable texture. To achieve this goal, we need to calculate tone of the image at first. The paper propose a parametric model to compute the target tone:<br>$$p(v) = \frac{1}{Z}\sum_{i=1}^3\mathbb{w}_i\mathbb{p}_i(v)$$, where v is the value of tone and $\mathbb{p}(v)$ gives the probability distribution that a pixel in a pencil drawing is with value v. The paper partition pixels into three layers, which hold different distributions given by $\mathbb{p}_i(v)$. And the distributions are given by the paper as below: </p>
-<p>$$<br>\mathbb{p}_1(v)=<br>\begin{cases}<br>\frac{1}{\sigma_b}e^{-\frac{1-v}{\sigma_b}}, &amp; \text{if  $\mathbb{v} \leq$ 1} \<br>0, &amp; \text{otherwise} \<br>\end{cases}<br>$$</p>
-<p>$$<br>\mathbb{p}_2(v)=<br>\begin{cases}<br>\frac{1}{\mathbb{u}_b - \mathbb{u}_a}, &amp; \text{if $\mathbb{u}_a \leq \mathbb{v} \leq \mathbb{u}_b$ } \<br>0, &amp; \text{otherwise} \<br>\end{cases}<br>$$</p>
-<p>$$<br>\mathbb{p}_3(v)=<br>\frac{1}{\sqrt{2\pi\sigma_d}}e^{-\frac{(v-\mu_d)^2}{2\sigma_d^2}}<br>$$</p>
-<p>To make our lifies easier, the paper gives us learned parameters above. </p>
+<h4 id="Draw-Line"><a href="#Draw-Line" class="headerlink" title="Draw Line"></a>Draw Line</h4><p>Author of the article separates the workflow into two parts. One is to draw the outline of the image and the other is to draw the texture. Finally, combining two parts with convolution. When drawing the outline, the algorithm firstly does “classification” by computing the gradient magnitude of the gary scale image (denoted as G), in order to find out the edges. But what makes this algorithm is that it then tries to generate short lines for sketch. It estimates the direction of line direction with help of direction of gradient. The general way to do this is to chooose eight reference direction at 45 degree apart, which are denoted as $\{\mathbb{L}_i\}$, i $\in \{1…8\}$. Then convolving gradient magnitude and line segmentation </p>
+<script type="math/tex; mode=display">\mathbb{L}_i * G</script><p>In detail, as for how to create line segmentation matrix, we need to create a singal matrix at 8 directions, and convolve G and the singal matrix. Next, we perform non-maximum supression with formula </p>
+<script type="math/tex; mode=display">
+C_i(p)=
+\begin{cases}
+G(p), & \text{if ${\argmax_i}$ $G_i(p)$ = i} \\
+0, & \text{otherwise} \\
+\end{cases}</script><p>Now, what we will do is to shape the line, denoted as S. </p>
+<script type="math/tex; mode=display">S = \sum_{i=1}^8 (\mathbb{L}_i \bigotimes C_i)</script><p>This convolution formula gives us an outline image which has many close-ups. In summary, to draw the line of the image, the algorithm is to find the edges and then extends the edges at the gradient direction. Of course, we need to ensure the gradient by using non-maximum supression.</p>
+<h4 id="Draw-Tone"><a href="#Draw-Tone" class="headerlink" title="Draw Tone"></a>Draw Tone</h4><p>The task for another part is drawing texture. The idea for this part is trying to find a proper texture to convolve it with line image. Actually, in practice if we directly convolve line image with a texture image given online, we could draw the texture on line image. However, it can’t reflect shadow or shading and dark object properly. So, it’s necessary to find out a suitable texture. To achieve this goal, we need to calculate tone of the image at first. The paper propose a parametric model to compute the target tone: </p>
+<script type="math/tex; mode=display">p(v) = \frac{1}{Z}\sum_{i=1}^3\mathbb{w}_i\mathbb{p}_i(v)$$, where v is the value of tone and $\mathbb{p}(v)$ gives the probability distribution that a pixel in a pencil drawing is with value v. The paper partition pixels into three layers, which hold different distributions given by $\mathbb{p}_i(v)$. And the distributions are given by the paper as below:</script><p>\mathbb{p}_1(v)=<br>\begin{cases}<br>\frac{1}{\sigma_b}e^{-\frac{1-v}{\sigma_b}}, &amp; \text{if  $\mathbb{v} \leq$ 1} \\<br>0, &amp; \text{otherwise} \\<br>\end{cases}</p>
+<script type="math/tex; mode=display">
+</script><p>\mathbb{p}_2(v)=<br>\begin{cases}<br>\frac{1}{\mathbb{u}_b - \mathbb{u}_a}, &amp; \text{if $\mathbb{u}_a \leq \mathbb{v} \leq \mathbb{u}_b$ } \\<br>0, &amp; \text{otherwise} \\<br>\end{cases}</p>
+<script type="math/tex; mode=display">
+</script><p>\mathbb{p}_3(v)=<br>\frac{1}{\sqrt{2\pi\sigma_d}}e^{-\frac{(v-\mu_d)^2}{2\sigma_d^2}}</p>
+<script type="math/tex; mode=display">
+
+To make our lifies easier, the paper gives us learned parameters above. 
 <table>
         <tr>
             <th>$\mathbb{w}_1$</th>
@@ -303,9 +314,8 @@
             <th>11</th>
         </tr>
 </table>
-Using the target tone, we could calculate the imgae tone, denoted as J. Tone image J is given by the histogram matching between $\mathbb{p}_i$ and histogram of input image. Then we could start to render the texture of pencil. The algorithm used to render the texture is maximum likelihood. According to the paper, "In human drawing, tonal pencil textur eis generated by repeatedly drawing at the same place. We simulate the process using multiplication of strokes, which results in an exponential combination $H(x)^\beta(x) \approx J(x)$ or $\beta(x)\log H(x) \approx \log J(x)$". $H(x)$ is given by the input texture image but $\beta(x)$ is needed to be calculated. We could find $\beta(x)$ with $\beta(x)\log H(x) \approx \log J(x)$ with sparse matrix. After having $\beta(x)$, we can start finding optimal $\beta$ by solving
-
-<p>$$<br>\beta* = \argmin_{\beta} | \beta \log H - \log J |_2^2 + \lambda |\nabla \beta |_2^2<br>$$</p>
+Using the target tone, we could calculate the imgae tone, denoted as J. Tone image J is given by the histogram matching between $\mathbb{p}_i$ and histogram of input image. Then we could start to render the texture of pencil. The algorithm used to render the texture is maximum likelihood. According to the paper, "In human drawing, tonal pencil textur eis generated by repeatedly drawing at the same place. We simulate the process using multiplication of strokes, which results in an exponential combination $H(x)^\beta(x) \approx J(x)$ or $\beta(x)\log H(x) \approx \log J(x)$". $H(x)$ is given by the input texture image but $\beta(x)$ is needed to be calculated. We could find $\beta(x)$ with $\beta(x)\log H(x) \approx \log J(x)$ with sparse matrix. After having $\beta(x)$, we can start finding optimal $\beta$ by solving</script><p>\beta* = \argmin_{\beta} | \beta \log H - \log J |_2^2 + \lambda |\nabla \beta |_2^2</p>
+<p>$$</p>
 <p>where $\lambda$ is 0.2. Then we could calculate texture map T with $T = H ^{\beta*}$. </p>
 <p>Lastly, we combine the stroke and texure, expressed as $ R = S \cdot T$. And the final output looks better than previous result. </p>
 <center>
